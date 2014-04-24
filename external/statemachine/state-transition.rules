@@ -1,0 +1,60 @@
+Events:
+	doorOpen
+	doorClose
+	lightOn
+	drawerOpen
+	reset
+
+States:
+	idle
+	active
+	waitingForLight
+	waitingForDrawer
+	unlockPanel
+
+State idle:
+	doorOpen => active
+
+State active:
+	lightOn => waitingForDrawer
+	drawerOpen => waitingForLight
+
+State waitingForDrawer:
+	drawerOpen => unlockPanel
+
+State waitingForLight:
+	lightOn => unlockPanel
+
+State unlockPanel:
+	doorClose => idle
+
+State ALL:
+	reset => idle
+
+/*BNF of rule files
+
+	rule        ::=  events states transitions
+	events      ::=  "Events" ":" word+
+	states      ::=  "States" ":" word+
+	transitions ::=  "State" word ":" transition+
+	transition  ::=   word "=>" word
+	word        ::=  ~keywords alphas alphanums or "_"
+	keywords    ::=  "Events" | "State" | "States"
+
+*/
+
+
+/*translate the BNF to pyparsing statements
+
+	keywords = oneOf("Events States State")
+	word = ~keywords + Word(alphas, alphanums+'_')
+	transition = word + Word("=>") + word
+
+	states = Group(Word("States", ":") + OneOrMore(word))
+	events = Group(Word("Events", ":") + OneOrMore(word))
+	transitions = Group(Word("State") + word + Word(":") + OneOrMore(transition))
+
+	rules = events + states + OneOrMore(transitions)
+	rules = rules + stringEnd
+
+*/
