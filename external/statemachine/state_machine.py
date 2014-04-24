@@ -1,5 +1,7 @@
 #!/bin/env python
 
+import rules_parser as r
+
 class StateMachine(object):
 	"""
 	StateMachine which hold the current state and enable the state transition based on rules file
@@ -30,45 +32,27 @@ class Rules(object):
 	@staticmethod
 	def get_acceptable_events(state):
 
-		if state == "idle":
-			return ("reset", "doorOpen")
-		elif state == "active":
-			return ("reset", "lightOn", "drawerOpen")
-		elif state == "waitingForDrawer":
-			return ("reset", "drawerOpen")
-		elif state == "waitingForLight":
-			return ("reset", "lightOn")
-		elif state == "unlockPanel":
-			return ("reset", "doorClose")
+		events_table = r.get_acceptable_events_table()
+		return events_table[state]
 
 	@staticmethod
 	def get_transit_table(state):
-		transit_table = dict()
-		transit_table["reset"] = "idle"
+		transit_table = r.get_transit_table()
 
-		if state == "idle":
-			transit_table["doorOpen"] = "active"
-		elif state == "active":
-			transit_table["lightOn"] = "waitingForDrawer"
-			transit_table["drawerOpen"] = "waitingForLight"
-		elif state == "waitingForDrawer":
-			transit_table["drawerOpen"] = "unlockPanel"
-		elif state == "waitingForLight":
-			transit_table["lightOn"] = "unlockPanel"
-		elif state == "unlockPanel":
-			transit_table["doorClose"] = "idle"
-
-		return transit_table
-
+		return transit_table[state]
 
 
 if __name__ == '__main__':
 	
+	#test case
 	stateMachine = StateMachine("idle")
 	stateMachine.transit("lightOn")
 	stateMachine.transit("doorOpen")
+
+	#reset
 	stateMachine.transit("reset")
 
+	#whole process
 	stateMachine.transit("doorOpen")
 	stateMachine.transit("drawerOpen")
 	stateMachine.transit("lightOn")
